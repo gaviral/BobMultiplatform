@@ -40,12 +40,6 @@ struct ContentView: View {
                         Label("Add Item", systemImage: "plus")
                     }
                 }
-
-                ToolbarItem {
-                    Button(action: deleteAll) {
-                        Label("Delete All", systemImage: "trash")
-                    }
-                }
             }
         } detail: {
             Text("Select an item")
@@ -53,23 +47,33 @@ struct ContentView: View {
     }
 
     private func getDetailView(item: Item) -> some View {
-        VStack {
-            Text(item.name)
+        HStack {
+            VStack {
+                Text("Item ID: \(item.item_id)")
+                Text("Name: \(item.name)")
+            }
             Spacer()
+            VStack {
+                Button("Update") {
+                    withAnimation {
+                        item.name = "Updated \(item.name)"
+                    }
+                }
+                .padding()
+                .background(Color.blue)
+                .foregroundColor(.white)
+                .cornerRadius(8)
+            }
         }
     }
 
     private func addItem() {
         withAnimation {
-            var nextItem = items.count
+            // var nextItem = items.count  // issue: when deleting non-last items, the next item will have a duplicate id
+            let nextItem = (items.map(\.item_id).max() ?? 0) + 1
             let newItem = Item(item_id: nextItem)
             modelContext.insert(newItem)
         }
-    }
-    
-    private func deleteAll() {
-        deleteItems(offsets: IndexSet(items.indices))
-        
     }
 
     private func deleteItems(offsets: IndexSet) {
@@ -85,3 +89,9 @@ struct ContentView: View {
     ContentView()
         .modelContainer(for: Item.self, inMemory: true)
 }
+
+// QnA:
+// 1: how to delete items in macOS?
+//   - use the delete key
+//     - How to implement delete key in macOS?
+//       - use onDelete(perform: deleteItems) in List on line 20
