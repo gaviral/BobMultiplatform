@@ -12,7 +12,6 @@ struct RecursiveTreeView: View {
 
     let item: Item
     let indentMultiplier: CGFloat
-    let refresh: () -> Void
 
     var body: some View {
         if !item.children.isEmpty {
@@ -22,16 +21,14 @@ struct RecursiveTreeView: View {
                         Text("Node \(node.node_id)")
                         // Text("Parent \(node.parent?.node_id ?? -1)")
                         Button(action: {
-                            withAnimation {
-                                let my_next_child_id = node.node_id*10 + node.children.count
-                                let newChild = Item(node_id: my_next_child_id, my_depth: node.my_depth + 1, parent: node, children: [])
-                                node.children.append(newChild)
-                            }
+                            let my_next_child_id = node.node_id*10 + node.children.count
+                            let newChild = Item(node_id: my_next_child_id, my_depth: node.my_depth + 1, parent: node, children: [])
+                            node.children.append(newChild)
                         }) {
                             Label("Add Child", systemImage: "plus")
                         }
                         Spacer().frame(width: indentMultiplier * CGFloat(item.my_depth)) // Indent based on depth
-                        RecursiveTreeView(item: node, indentMultiplier: indentMultiplier, refresh: refresh)
+                        RecursiveTreeView(item: node, indentMultiplier: indentMultiplier)
                     }.padding(5).border(Color.red, width: 1).cornerRadius(10).padding(5)                    
                 }
             }.padding()
@@ -56,11 +53,16 @@ struct ContentView: View {
                             ScrollView(.vertical) {
                                 HStack {
                                     VStack {
-                                        Text("Node \(root.node_id)")
-                                        // Text("Parent \(root.parent?.node_id ?? -1)")
-                                        // Make this VStack's width equal to the width of the text in it
+                                        Text("Root \(root.node_id)")
+                                        Button(action: {
+                                            let nextChildID = root.node_id*10 + root.children.count
+                                            let newChild = Item(node_id: nextChildID, my_depth: root.my_depth + 1, parent: root, children: [])
+                                            root.children.append(newChild)
+                                        }) {
+                                            Label("Add Child", systemImage: "plus")
+                                        }
                                     }.frame(minWidth: 0, alignment: .leading).border(Color.blue)
-                                    RecursiveTreeView(item: root, indentMultiplier: 20, refresh: refresh)
+                                    RecursiveTreeView(item: root, indentMultiplier: 20)
                                 }
                             }
                         }
@@ -84,20 +86,9 @@ struct ContentView: View {
                         Label("Add Root", systemImage: "plus")
                     }
                 }
-                ToolbarItem {
-                    Button(action: refresh) {
-                        Label("Refresh", systemImage: "arrow.clockwise")
-                    }
-                }
             }
         } detail: {
             Text("Select an root")
-        }
-    }
-
-    private func refresh() {
-        withAnimation {
-            modelContext.processPendingChanges()
         }
     }
 
