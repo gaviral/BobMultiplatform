@@ -10,7 +10,7 @@ import SwiftData
 
 @Model
 final class Item {
-    var node_id: Int
+    var id: UUID = UUID()
     var val: String
     var children: [Item]
     var my_depth: Int
@@ -19,9 +19,8 @@ final class Item {
     // static var to keep track of tree depth
     static var max_depth = 0
     
-    init(node_id: Int, my_depth: Int, parent: Item?, children: [Item]) {
-        self.node_id = node_id
-        self.val = "Item \(node_id)"
+    init(my_depth: Int, parent: Item?, children: [Item]) {
+        self.val = "Item val"
         self.my_depth = my_depth
 
         // update max_depth
